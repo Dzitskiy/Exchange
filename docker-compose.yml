@@ -1,0 +1,41 @@
+services:
+
+  external-api:
+    build:
+      context: .
+      dockerfile: src/ExternalServices/Hosts/ExternalServices.Api/Dockerfile
+    ports:
+      - "5000:80"
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+    depends_on:
+      kafka:
+        condition: service_started
+  
+  order-api:
+    build:
+      context: .
+      dockerfile: src/OrderServices/Hosts/OrderServices.Api/Dockerfile
+    ports:
+      - "5001:80"
+    environment:
+      - CASSANDRA_CONTACT_POINTS=cassandra
+      - CASSANDRA_PORT=9042
+    depends_on:
+      cassandra:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+
+  order-daemon:
+    build:
+      context: .
+      dockerfile: src/OrderServices/Hosts/OrderServices.Daemon/Dockerfile
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+      - ORDER_API_URL=http://orderapi
+    depends_on:
+      order-api:
+        condition: service_started
+      kafka:
+        condition: service_started
