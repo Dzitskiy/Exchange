@@ -22,3 +22,8 @@ namespace Common.Contracts.Events
         public Guid OrderId { get; set; }
     }
 }
+
+//public record OrderCreatedEvent(
+//    string RequestId,
+//    Guid OrderId,
+//    DateTimeOffset ProcessedAt);

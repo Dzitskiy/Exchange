@@ -48,9 +48,10 @@ namespace OrderServices.Daemon.Workers
                 .Build();
 
             var bootstrapServers = config["Kafka:BootstrapServers"];
-            var createOrderTopic = config["Kafka:CreateOrderTopic"];
-            var orderCreatedTopic = config["Kafka:OrderCreatedTopic"];
-            var consumerGroup = "order-consumer-group";
+            var createOrderTopic = config["Kafka:Topics:CreateOrder"];
+            var orderCreatedTopic = config["Kafka:Topics:OrderCreated"];
+            
+            //var consumerGroup = "order-consumer-group";
 
             var consumerConfig = new ConsumerConfig
             {
@@ -72,8 +73,8 @@ namespace OrderServices.Daemon.Workers
                 //.SetValueSerializer(new JsonSerializer<CreateOrderEvent>())
                 .Build();
 
-            _createOrderTopic = config["Kafka:CreateOrderTopic"];
-            _orderCreatedTopic = config["Kafka:OrderCreatedTopic"];
+            _createOrderTopic = config["Kafka:Topics:CreateOrder"];
+            _orderCreatedTopic = config["Kafka:Topics:OrderCreated"];
         }
 
         /// <inheritdoc/>
@@ -91,11 +92,11 @@ namespace OrderServices.Daemon.Workers
         }
 
         /// <inheritdoc/>
-        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+        protected override async Task ExecuteAsync(CancellationToken cancellationToken)
         {
             _consumer.Subscribe(_createOrderTopic);
 
-            Console.WriteLine("KafkaConsumerWorker started. Waiting for orders...");
+            Console.WriteLine($"Kafka Consumer started for topic: {_createOrderTopic}");
 
             while (true)
             {
@@ -105,6 +106,14 @@ namespace OrderServices.Daemon.Workers
                     var message = consumeResult.Message.Value;
 
                     var createOrderEvent = JsonSerializer.Deserialize<CreateOrderEvent>(consumeResult.Message.Value);
+
+                    if (createOrderEvent == null)
+                    {
+                        _logger.LogError("Failed to deserialize CreateOrderEvent from Kafka message.");
+                        continue;
+                    }
+
+                    _logger.LogInformation($"Received CreateOrderEvent for request: {createOrderEvent.CorrelationId}");
 
                     var orderId = await ProcessOrderEvent(createOrderEvent);
 
@@ -122,7 +131,7 @@ namespace OrderServices.Daemon.Workers
                             Value = JsonSerializer.Serialize(orderCreatedEvent) }
                     );
 
-                    Console.WriteLine($"Processed order: {orderId} for correlation: {createOrderEvent.CorrelationId}");
+                    Console.WriteLine($"Processed order: {orderId} for request: {createOrderEvent.CorrelationId}");
                 }
                 catch (Exception ex)
                 {
@@ -130,8 +139,6 @@ namespace OrderServices.Daemon.Workers
                 }
             }
         }
-
-
 
         private async Task<Guid> ProcessOrderEvent(CreateOrderEvent createOrderEvent)
         {
