@@ -9,7 +9,7 @@ namespace Common.Contracts.Events
     /// <summary>
     /// Событие, которое генерируется при создании заказа.
     /// </summary>
-    public class OrderCreatedEvent
+    public record OrderCreatedEvent
     {
         /// <summary>
         /// Уникальный идентификатор события.
@@ -22,8 +22,3 @@ namespace Common.Contracts.Events
         public Guid OrderId { get; set; }
     }
 }
-
-//public record OrderCreatedEvent(
-//    string RequestId,
-//    Guid OrderId,
-//    DateTimeOffset ProcessedAt);

@@ -10,7 +10,7 @@ namespace Common.Contracts.Events
     /// Событие создания заказа.
     /// </summary>
     /// 
-    public class CreateOrderEvent
+    public record CreateOrderEvent
     {
         /// <summary>
         /// Уникальный идентификатор, гекнерируется для идемпотентности запроса.
@@ -23,11 +23,3 @@ namespace Common.Contracts.Events
         public string Description { get; set; }
     }
 }
-
-//public record CreateOrderEvent(
-//    string RequestId,
-//    string ProductId,
-//    int Quantity,
-//    decimal Price,
-//    DateTimeOffset CreatedAt);
-

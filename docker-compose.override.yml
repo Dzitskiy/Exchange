@@ -22,6 +22,7 @@ services:
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+    command: sh -c "((sleep 15 && kafka-topics --create --zookeeper zookeeper:2181 --replication-factor 1 --partitions 3 --topic CreateOrderEvent && kafka-topics --create --zookeeper zookeeper:2181 --replication-factor 1 --partitions 3 --topic )&) && /etc/confluent/docker/run ">
 
   cassandra:
     image: cassandra:5.0
@@ -39,6 +40,18 @@ services:
       timeout: 5s
       retries: 2
       start_period: 10s
+
+  # prometheus:
+  #   image: prom/prometheus
+  #   ports:
+  #     - "9090:9090"
+  #   volumes:
+  #     - ./prometheus.yml:/etc/prometheus/prometheus.yml
+
+  # grafana:
+  #   image: grafana/grafana
+  #   ports:
+  #     - "3000:3000"
 
 volumes:
   cassandra_data:

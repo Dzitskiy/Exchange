@@ -18,3 +18,9 @@ If you want to learn more about creating good readme files then refer the follow
 - [ASP.NET Core](https://github.com/aspnet/Home)
 - [Visual Studio Code](https://github.com/Microsoft/vscode)
 - [Chakra Core](https://github.com/Microsoft/ChakraCore)
+
+
+
+
+k6 run --vus 10 --duration 30s order-api-test.js  # Быстрая проверка
+k6 run order-api-test.js  # Полный тест по сценарию
