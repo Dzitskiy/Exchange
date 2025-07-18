@@ -1,20 +1,47 @@
-# Introduction 
-TODO: Give a short introduction of your project. Let this section explain the objectives or the motivation behind this project. 
+# Инструкция по запуску
 
-# Getting Started
-TODO: Guide users through getting your code up and running on their own system. In this section you can talk about:
-1.	Installation process
-2.	Software dependencies
-3.	Latest releases
-4.	API references
+## Сборка и запуск системы:
 
-# Build and Test
-TODO: Describe and show how to build your code and run the tests. 
+``` bash
+docker-compose up -d --build
+``` 
 
-# Contribute
-TODO: Explain how other users and developers can contribute to make your code better. 
+## Проверка работы сервисов:
 
-If you want to learn more about creating good readme files then refer the following [guidelines](https://docs.microsoft.com/en-us/azure/devops/repos/git/create-a-readme?view=azure-devops). You can also seek inspiration from the below readme files:
-- [ASP.NET Core](https://github.com/aspnet/Home)
-- [Visual Studio Code](https://github.com/Microsoft/vscode)
-- [Chakra Core](https://github.com/Microsoft/ChakraCore)
+``` bash
+docker-compose ps
+```
+
+##  Отправка тестового запроса:
+
+``` bash
+curl --location 'http://localhost:5000/api/orders' \
+--header 'Content-Type: application/json' \
+--data '{
+    "op": "create",
+    "instId": "BTC-USDT",
+    "clOrdId": "",
+    "tdMode": "cash",
+    "side": "buy",
+    "ordType": "limit",
+    "px": "2.15",
+    "sz": "2"
+}'```
+
+## Просмотр логов:
+
+``` bash
+docker-compose logs -f orderapi
+```
+
+##  Мониторинг системы:
+
+- Seq: http://localhost:8081
+- Kafdrop: http://localhost:9000
+- Cassandra Web UI: http://localhost:3000
+
+## Нагрузочное тестирование:
+
+``` bash
+docker run -i --network=ordersystem_default loadimpact/k6 run - <load-test/order-load-test.js
+```

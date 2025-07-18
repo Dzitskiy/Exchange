@@ -1,41 +1,152 @@
-services:
+﻿services:
 
-  external-api:
-    build:
-      context: .
-      dockerfile: src/ExternalServices/Hosts/ExternalServices.Api/Dockerfile
-    ports:
-      - "5000:80"
+  # Kafka
+  kafka:
+    image: apache/kafka:latest
     environment:
-      - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+      - KAFKA_PROCESS_ROLES=controller, broker
+      - KAFKA_CONTROLLER_QUORUM_VOTERS=1@localhost:9093
+      - KAFKA_NODE_ID=1
+      - KAFKA_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+      - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
+    ports:
+      - "9092:9092"    
+
+  # Инициализация топиков Kafka
+  kafka-init:
+    image: apache/kafka:latest
+    entrypoint: [ '/bin/sh', '-c' ]
+    command: |
+      "
+      # blocks until kafka is reachable
+      /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 --list
+      echo -e 'Creating kafka topics'
+      /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 --create --if-not-exists --topic order.requests --replication-factor 1 --partitions 3
+      /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 --create --if-not-exists --topic order.responses --replication-factor 1 --partitions 1
+      echo -e 'Successfully created the following topics:'
+      /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 --list
+      "  
     depends_on:
       kafka:
         condition: service_started
+
+  # Визуализация для Kafka
+  kafdrop:
+    image: obsidiandynamics/kafdrop
+    ports:
+      - "9000:9000"
+    environment:
+      KAFKA_BROKERCONNECT: kafka:9092
+    depends_on:
+      kafka:
+        condition: service_started
+
+  # База данных Cassandra
+  cassandra:
+    image: cassandra:4.1
+    ports:
+      - "9042:9042"
+    # volumes:
+    #   - cassandra_data:/var/lib/cassandra
+    environment:
+      - cassandra_start_rpc=true
+    healthcheck:
+      test: ["CMD-SHELL", "cqlsh -u cassandra -p cassandra -e 'describe keyspaces' || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 2
+    volumes:
+      - ./cassandra-init.cql:/cassandra-init.cql
+
+  # Инициализация базы данных Cassandra
+  cassandra-init:
+    image: cassandra:4.1
+    entrypoint: [ '/bin/sh', '-c' ]
+    command: |
+      "
+      echo 'Waiting for Cassandra'
+      sleep 5
+      until cqlsh cassandra -e 'describe keyspaces'; do
+        echo 'Waiting for Cassandra...'
+        sleep 5
+      done
+      echo 'running cassandra-init.cql'
+      cqlsh cassandra  -f /cassandra-init.cql
+      "
+    volumes:
+      - ./cassandra-init.cql:/cassandra-init.cql
+    depends_on:
+        cassandra:
+            condition: service_healthy
   
-  order-api:
+  # Веб-интерфейс Cassandra
+  cassandra-web:
+    image: dcagatay/cassandra-web
+    ports:
+      - "3000:3000"
+    environment:
+      CASSANDRA_HOST: cassandra
+      CASSANDRA_PORT: 9042
+      CASSANDRA_USER: cassandra
+      CASSANDRA_PASSWORD: cassandra
+    depends_on:
+      cassandra:
+        condition: service_healthy
+
+  # #Система логирования
+  # seq:
+  #   image: datalust/seq:latest
+  #   restart: unless-stopped
+  #   environment:
+  #     - ACCEPT_EULA=Y
+  #   ports:
+  #     - "81:80"
+  #     - "5341:5341"
+  #   volumes:
+  #     - seq-logs:/data   
+
+  # Сервис API
+  orderapi:
     build:
       context: .
-      dockerfile: src/OrderServices/Hosts/OrderServices.Api/Dockerfile
+      dockerfile: src/OrderApi/Dockerfile
     ports:
-      - "5001:80"
+      - "5000:8080"
     environment:
-      - CASSANDRA_CONTACT_POINTS=cassandra
-      - CASSANDRA_PORT=9042
+      - Kafka__BootstrapServers=kafka:9092
+    depends_on:
+      kafka: 
+        condition: service_started
+      # - seq
+
+
+  # Сервис обработки заказов
+  orderprocessor:
+    build:
+      context: .
+      dockerfile: src/OrderProcessor/Dockerfile
+    environment:
+      - Kafka__BootstrapServers=kafka:9092
+      - Cassandra__ContactPoints=cassandra
     depends_on:
       cassandra:
         condition: service_healthy
       kafka:
         condition: service_started
+    # Запускаем несколько экземпляров сервиса
+    #scale: 3
+    deploy:
+      replicas: 3
 
-  order-daemon:
-    build:
-      context: .
-      dockerfile: src/OrderServices/Hosts/OrderServices.Daemon/Dockerfile
-    environment:
-      - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
-      - ORDER_API_URL=http://orderapi
-    depends_on:
-      order-api:
-        condition: service_started
-      kafka:
-        condition: service_started
+      # - seq
+    # scale: 1
+
+  
+# volumes:
+#   seq-logs:
+#   cassandra_data:
+
+# networks:
+#   orders-network:

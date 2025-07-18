@@ -1,0 +1,68 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.7.34031.279
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{15FE34F8-65DA-45D1-B8EE-F7ECC363081F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{5054B436-554A-4817-AA1D-44F11374BD1B}"
+	ProjectSection(SolutionItems) = preProject
+		cassandra-init.cql = cassandra-init.cql
+		docker-compose.yml = docker-compose.yml
+		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{7562A990-1964-4E77-88D6-69F0375644AF}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{6A2954F8-6D3D-46F8-BCD2-4DD05053F1FB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.Contracts", "src\Common\Common.Contracts\Common.Contracts.csproj", "{538E9E66-26CE-46BA-9C9A-D746C3BA2962}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "load-test", "load-test", "{60D7BF2F-2CD2-4922-8170-64CB39BC5238}"
+	ProjectSection(SolutionItems) = preProject
+		tests\load-test\find_max_rps.js = tests\load-test\find_max_rps.js
+		tests\load-test\max_rps_test.js = tests\load-test\max_rps_test.js
+		tests\load-test\order-api-test.js = tests\load-test\order-api-test.js
+		tests\load-test\orders.json = tests\load-test\orders.json
+		tests\load-test\payload.json = tests\load-test\payload.json
+		tests\load-test\script.js = tests\load-test\script.js
+		tests\load-test\test.js = tests\load-test\test.js
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrderApi", "src\OrderApi\OrderApi.csproj", "{AFEF6BA0-66C4-4F94-A57A-8DF66B290C3B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrderProcessor", "src\OrderProcessor\OrderProcessor.csproj", "{2771F6EF-5EE8-41D9-8681-6810E85410C9}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{538E9E66-26CE-46BA-9C9A-D746C3BA2962}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{538E9E66-26CE-46BA-9C9A-D746C3BA2962}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{538E9E66-26CE-46BA-9C9A-D746C3BA2962}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{538E9E66-26CE-46BA-9C9A-D746C3BA2962}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AFEF6BA0-66C4-4F94-A57A-8DF66B290C3B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AFEF6BA0-66C4-4F94-A57A-8DF66B290C3B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AFEF6BA0-66C4-4F94-A57A-8DF66B290C3B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AFEF6BA0-66C4-4F94-A57A-8DF66B290C3B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2771F6EF-5EE8-41D9-8681-6810E85410C9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2771F6EF-5EE8-41D9-8681-6810E85410C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2771F6EF-5EE8-41D9-8681-6810E85410C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2771F6EF-5EE8-41D9-8681-6810E85410C9}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{7562A990-1964-4E77-88D6-69F0375644AF} = {15FE34F8-65DA-45D1-B8EE-F7ECC363081F}
+		{538E9E66-26CE-46BA-9C9A-D746C3BA2962} = {7562A990-1964-4E77-88D6-69F0375644AF}
+		{60D7BF2F-2CD2-4922-8170-64CB39BC5238} = {6A2954F8-6D3D-46F8-BCD2-4DD05053F1FB}
+		{AFEF6BA0-66C4-4F94-A57A-8DF66B290C3B} = {15FE34F8-65DA-45D1-B8EE-F7ECC363081F}
+		{2771F6EF-5EE8-41D9-8681-6810E85410C9} = {15FE34F8-65DA-45D1-B8EE-F7ECC363081F}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {40E7EB25-E339-4D9A-B62A-AF68944958CD}
+	EndGlobalSection
+EndGlobal

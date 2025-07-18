@@ -1,0 +1,12 @@
+[
+  {
+    "op": "create",
+    "instId": "BTC-USDT",
+    "clOrdId": "",
+    "tdMode": "cash",
+    "side": "buy",
+    "ordType": "limit",
+    "px": "2.15",
+    "sz": "2"
+  }
+]
